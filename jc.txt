@@ -1,0 +1,154 @@
+import java.util.Scanner;
+import java.util.TreeMap;
+
+class Node {
+    int value;
+    Node parent;
+    TreeMap<Integer, Node> children;
+
+    public Node(int value) {
+        this.value = value;
+        this.children = new TreeMap<>();
+    }
+}
+
+public class TreeNavigator {
+    private Node root;
+    private Scanner scanner;
+
+    public TreeNavigator() {
+        root = new Node(0); // Root node initialized with value 0
+        scanner = new Scanner(System.in);
+    }
+
+    public void run() {
+        while (true) {
+            System.out.println("Tree Navigator");
+            System.out.println("1. Create Node");
+            System.out.println("2. Add Child");
+            System.out.println("3. Remove Node");
+            System.out.println("4. Search Node");
+            System.out.println("5. Display Tree");
+            System.out.println("6. Exit");
+            System.out.print("Choose an option: ");
+            int option = scanner.nextInt();
+            scanner.nextLine(); // consume newline left-over
+
+            switch (option) {
+                case 1:
+                    createNode();
+                    break;
+                case 2:
+                    addChild();
+                    break;
+                case 3:
+                    removeNode();
+                    break;
+                case 4:
+                    searchNode();
+                    break;
+                case 5:
+                    displayTree();
+                    break;
+                case 6:
+                    System.out.println("Exiting...");
+                    return;
+                default:
+                    System.out.println("Invalid option. Please choose again.");
+            }
+        }
+    }
+
+    private void createNode() {
+        System.out.print("Enter value for the new node: ");
+        int value = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+        System.out.println("Node created with value: " + value);
+    }
+
+    private void addChild() {
+        System.out.print("Enter parent node value: ");
+        int parentValue = scanner.nextInt();
+        System.out.print("Enter child node value: ");
+        int childValue = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        Node parentNode = findNode(root, parentValue);
+        if (parentNode != null) {
+            Node childNode = new Node(childValue);
+            parentNode.children.put(childValue, childNode);
+            childNode.parent = parentNode;
+            System.out.println("Child node with value " + childValue + " added to parent " + parentValue);
+        } else {
+            System.out.println("Parent node not found.");
+        }
+    }
+
+    private void removeNode() {
+        System.out.print("Enter node value to remove: ");
+        int value = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        Node nodeToRemove = findNode(root, value);
+        if (nodeToRemove != null) {
+            if (nodeToRemove.parent != null) {
+                nodeToRemove.parent.children.remove(value);
+            }
+            removeChildren(nodeToRemove);  // Remove children recursively
+            System.out.println("Node with value " + value + " removed.");
+        } else {
+            System.out.println("Node not found.");
+        }
+    }
+
+    private void removeChildren(Node node) {
+        for (Node child : node.children.values()) {
+            removeChildren(child);  // Recursively remove all children
+        }
+        node.children.clear();
+    }
+
+    private void searchNode() {
+        System.out.print("Enter node value to search: ");
+        int value = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        Node foundNode = findNode(root, value);
+        if (foundNode != null) {
+            System.out.println("Node found with value: " + foundNode.value);
+        } else {
+            System.out.println("Node not found.");
+        }
+    }
+
+    private Node findNode(Node currentNode, int value) {
+        if (currentNode.value == value) {
+            return currentNode;
+        }
+        for (Node child : currentNode.children.values()) {
+            Node found = findNode(child, value);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;  // Node not found
+    }
+
+    private void displayTree() {
+        System.out.println("Tree structure:");
+        displayTree(root, 0);
+    }
+
+    private void displayTree(Node node, int depth) {
+        String indentation = "  ".repeat(depth);
+        System.out.println(indentation + node.value);
+        for (Node child : node.children.values()) {
+            displayTree(child, depth + 1);
+        }
+    }
+
+    public static void main(String[] args) {
+        TreeNavigator navigator = new TreeNavigator();
+        navigator.run();
+    }
+}
